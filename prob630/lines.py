@@ -17,14 +17,49 @@
 
 ##############################################################################################################################################
 
-
 # Sum of touches in x UNIQUE NONPARALLEL lines = x(x-1)
 
 import math
 
 def main():
     # generate 25000 points
-    points = generatePoints(25000)
+    points = generatePoints(3)
+
+    # generate unique lines
+    lines = generateLines(points)
+
+    print(len(lines))
+
+    # remove nonparallel lines
+
+    # count intersections
+
+def generateLines(points):
+    lines = []
+
+    for p1 in points:
+        rest = points.copy()
+        rest.remove(p1)
+
+        for p2 in rest:
+            pointsInLine = [ p1, p2 ]
+            slope = (p2[1] - p1[1])/(p2[0] - p1[0])
+
+            lineAlreadyFound = False
+
+            for prevLine in lines:
+                if(all(elem in pointsInLine  for elem in prevLine['points'])):
+                    print('old line found')
+                    lineAlreadyFound = True
+                    break
+
+            if (lineAlreadyFound is False):
+                line = {
+                    'points': pointsInLine,
+                    'slope': slope
+                }
+                lines.append(line)
+    return lines
 
 def generatePoints(numOfPoints):
     points = []
