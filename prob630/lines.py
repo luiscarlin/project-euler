@@ -28,6 +28,7 @@ def main():
     # generate unique lines
     lines = generateLines(points)
 
+    print(lines)
     print(len(lines))
 
     # remove nonparallel lines
@@ -43,12 +44,19 @@ def generateLines(points):
 
         for p2 in rest:
             pointsInLine = [ p1, p2 ]
+
+            if (p2[0] - p1[0] is 0):
+                print (p1, p2)
             slope = (p2[1] - p1[1])/(p2[0] - p1[0])
 
             lineAlreadyFound = False
 
             for prevLine in lines:
-                if(all(elem in pointsInLine  for elem in prevLine['points'])):
+                if(all(elem in pointsInLine for elem in prevLine['points'])):
+                    # for p in pointsInLine:
+                    #     if (p not in prevLine['points']):
+                    #         prevLine['points'].append(p)
+
                     print('old line found')
                     lineAlreadyFound = True
                     break
