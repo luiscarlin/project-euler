@@ -20,23 +20,36 @@
 # Sum of touches in x UNIQUE NONPARALLEL lines = x(x-1)
 
 import math
+from timeit import default_timer as timer
 
 def main():
+    start = timer()
     # generate 25000 points
-    points = generatePoints(3)
+    numPoints = 200
+    print('generating', numPoints, 'points...')
+    points = generatePoints(numPoints)
+    print('done')
 
     # generate unique lines
+    print('generating lines...')
     lines = generateLines(points)
+    print('done')
 
-    print(lines)
-    print(len(lines))
+    numLines = len(lines)
+
+    print('number of lines found =', numLines, 'for', numPoints)
 
     # remove nonparallel lines
 
     # count intersections
 
+    end = timer()
+    print('took', end - start, 'seconds')
+
 def generateLines(points):
     lines = []
+
+    print('number of tests =', len(points) * (len(points) - 1))
 
     for p1 in points:
         rest = points.copy()
@@ -45,19 +58,19 @@ def generateLines(points):
         for p2 in rest:
             pointsInLine = [ p1, p2 ]
 
-            if (p2[0] - p1[0] is 0):
-                print (p1, p2)
-            slope = (p2[1] - p1[1])/(p2[0] - p1[0])
+            if (p2[0] - p1[0] == 0):
+                slope = 'undefined'
+            else:
+                slope = (p2[1] - p1[1])/(p2[0] - p1[0])
 
             lineAlreadyFound = False
 
             for prevLine in lines:
-                if(all(elem in pointsInLine for elem in prevLine['points'])):
-                    # for p in pointsInLine:
-                    #     if (p not in prevLine['points']):
-                    #         prevLine['points'].append(p)
-
-                    print('old line found')
+                if(any(elem in pointsInLine for elem in prevLine['points']) and slope == prevLine['slope']):
+                    for p in pointsInLine:
+                        if (p not in prevLine['points']):
+                            prevLine['points'].append(p)
+                            # print('adding point to old line', prevLine['points'])
                     lineAlreadyFound = True
                     break
 
@@ -66,6 +79,7 @@ def generateLines(points):
                     'points': pointsInLine,
                     'slope': slope
                 }
+                # print('adding new line', line)
                 lines.append(line)
     return lines
 
