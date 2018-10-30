@@ -24,22 +24,21 @@ from timeit import default_timer as timer
 
 def main():
     start = timer()
-    # generate 25000 points
-    numPoints = 200
+    # generate 2500 points
+    numPoints = 6
     print('generating', numPoints, 'points...')
     points = generatePoints(numPoints)
     print('done')
 
     # generate unique lines
     print('generating lines...')
-    lines = generateLines(points)
+    lines, parallel = generateLines(points)
     print('done')
 
     numLines = len(lines)
+    numParallel = len(parallel)
 
-    print('number of lines found =', numLines, 'for', numPoints)
-
-    # remove nonparallel lines
+    print('total number of lines found =', numLines, 'number of parallel lines =', numParallel, 'for', numPoints, 'points')
 
     # count intersections
 
@@ -48,15 +47,20 @@ def main():
 
 def generateLines(points):
     lines = []
+    parallel = []
 
     print('number of tests =', len(points) * (len(points) - 1))
+
+    tests = 0
 
     for p1 in points:
         rest = points.copy()
         rest.remove(p1)
 
         for p2 in rest:
-            pointsInLine = [ p1, p2 ]
+            tests += 1
+            print('test', tests)
+            pointsInLine = { p1, p2 }
 
             if (p2[0] - p1[0] == 0):
                 slope = 'undefined'
@@ -66,22 +70,25 @@ def generateLines(points):
             lineAlreadyFound = False
 
             for prevLine in lines:
-                if(any(elem in pointsInLine for elem in prevLine['points']) and slope == prevLine['slope']):
-                    for p in pointsInLine:
-                        if (p not in prevLine['points']):
-                            prevLine['points'].append(p)
-                            # print('adding point to old line', prevLine['points'])
-                    lineAlreadyFound = True
-                    break
+                if any(elem in pointsInLine for elem in prevLine['points']):
+                    if (slope == prevLine['slope']):
+                        prevLine['points'] = prevLine['points'].union(pointsInLine)
+                        lineAlreadyFound = True
+                        break
+                else:
+                    if (slope == prevLine['slope']):
+                        parallel.append({
+                            'points': pointsInLine,
+                            'slope': slope
+                    })
 
             if (lineAlreadyFound is False):
                 line = {
                     'points': pointsInLine,
                     'slope': slope
                 }
-                # print('adding new line', line)
                 lines.append(line)
-    return lines
+    return lines, parallel
 
 def generatePoints(numOfPoints):
     points = []
