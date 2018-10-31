@@ -25,7 +25,7 @@ from timeit import default_timer as timer
 def main():
     start = timer()
     # generate 2500 points
-    numPoints = 6
+    numPoints = 2500
     print('generating', numPoints, 'points...')
     points = generatePoints(numPoints)
     print('done')
@@ -46,20 +46,19 @@ def main():
     print('took', end - start, 'seconds')
 
 def generateLines(points):
-    lines = []
-    parallel = []
+    linesBySlope = {}
 
     print('number of tests =', len(points) * (len(points) - 1))
 
     tests = 0
 
     for p1 in points:
-        rest = points.copy()
-        rest.remove(p1)
+        points.remove(p1)
 
-        for p2 in rest:
+        for p2 in points:
             tests += 1
             print('test', tests)
+
             pointsInLine = { p1, p2 }
 
             if (p2[0] - p1[0] == 0):
@@ -67,28 +66,21 @@ def generateLines(points):
             else:
                 slope = (p2[1] - p1[1])/(p2[0] - p1[0])
 
-            lineAlreadyFound = False
-
-            for prevLine in lines:
-                if any(elem in pointsInLine for elem in prevLine['points']):
-                    if (slope == prevLine['slope']):
-                        prevLine['points'] = prevLine['points'].union(pointsInLine)
-                        lineAlreadyFound = True
+            if slope in linesBySlope:
+                # if p1 or p2 found in lines with same slope
+                for line in linesBySlope[slope]:
+                    if elem in pointsInLine for elem in line:
+                        line.union(pointsInLine)
                         break
-                else:
-                    if (slope == prevLine['slope']):
-                        parallel.append({
-                            'points': pointsInLine,
-                            'slope': slope
-                    })
+                break
 
-            if (lineAlreadyFound is False):
-                line = {
-                    'points': pointsInLine,
-                    'slope': slope
-                }
-                lines.append(line)
-    return lines, parallel
+            # new slope found
+            linesList = [
+                pointsInLine
+            ]
+
+            linesBySlope[slope].add(linesList)
+    return linesBySlope
 
 def generatePoints(numOfPoints):
     points = []
