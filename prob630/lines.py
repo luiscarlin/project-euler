@@ -25,18 +25,20 @@ from timeit import default_timer as timer
 def main():
     start = timer()
     # generate 2500 points
-    numPoints = 2500
+    numPoints = 4
     print('generating', numPoints, 'points...')
     points = generatePoints(numPoints)
     print('done')
 
     # generate unique lines
     print('generating lines...')
-    lines, parallel = generateLines(points)
+    lines = generateLines(points)
     print('done')
 
+    print(lines)
+
     numLines = len(lines)
-    numParallel = len(parallel)
+    numParallel = 0
 
     print('total number of lines found =', numLines, 'number of parallel lines =', numParallel, 'for', numPoints, 'points')
 
@@ -47,8 +49,6 @@ def main():
 
 def generateLines(points):
     linesBySlope = {}
-
-    print('number of tests =', len(points) * (len(points) - 1))
 
     tests = 0
 
@@ -67,19 +67,21 @@ def generateLines(points):
                 slope = (p2[1] - p1[1])/(p2[0] - p1[0])
 
             if slope in linesBySlope:
+                oldLineFound =  False
                 # if p1 or p2 found in lines with same slope
                 for line in linesBySlope[slope]:
-                    if elem in pointsInLine for elem in line:
+                    if any(pointsInLine in line):
                         line.union(pointsInLine)
+                        oldLineFound = True
                         break
                 break
 
-            # new slope found
-            linesList = [
-                pointsInLine
-            ]
+                if not oldLineFound:
+                    linesBySlope[slope].append( pointsInLine )
+            else:
+                linesBySlope[slope] = []
+                linesBySlope[slope].append( pointsInLine )
 
-            linesBySlope[slope].add(linesList)
     return linesBySlope
 
 def generatePoints(numOfPoints):
